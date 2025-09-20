@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кабирова Алина Марселевна</title>
+    <title>Todo-list</title>
+</head>
+<body>
+    <header class="heading"><b>Список задач</b></header>
+    <form class="add-task">
+        <li class="new-task"><b>Новая задача</b></li>
+      <input type="text" value= "Название задачи"class="task-input" >     
+      <button type="button" class="button-add">Добавить</button>
+    </form>
+
+<div class="flex-container">
+  <div class = "flex-item">
+    <span-backlog>Бэклог</span-backlog>
+  <ul class = "task-list task-list-backlog">
+    <li class="task-list-backlog">Выучить JS</li>
+    <li class="task-list-backlog">Выучить React</li>
+    <li class="task-list-backlog">Сделать домашку</li>
+  </ul></div>
+  <div class = "flex-item">
+    <span-process>В процессе</span-process>
+  <ul class = "task-list task-list-process">
+    <li class="task-list-process">Выпить смузи</li>
+    <li class="task-list-process">Попить воды</li>
+  </ul></div>
+    <div class = "flex-item">
+    <span-done>Готово</span-done>
+  <ul class = "task-list task-list-done">
+    <li class="task-list-done">Позвонить маме</li>
+    <li class="task-list-done">Погладить кота</li>
+  </ul></div>
+    <div class = "flex-item">
+    <span-bin>Корзина</span-bin>
+  <ul class = "task-list task-list-bin">
+    <li class="task-list-bin">Сходить погулять</li>
+    <li class="task-list-bin">Прочитать Войну и Мир</li>
+    <button type="button" class="button-del">Очистить</button>
+  </ul></div>
+</div>
+
+    <script src="script.js"></script>
+</body>
+</html>
