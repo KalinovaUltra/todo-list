@@ -1,31 +1,50 @@
 import {createElement} from '../framework/render.js'; 
 
-
-function createTaskListComponentTemplate() {
+function createTaskListComponentTemplate(title, status) {
     return (
-        ` <div class = "flex-item">
-    <span-backlog>Бэклог</span-backlog></div>`
-      );
+        `<div class="flex-item">
+            <span-${status}>${title}</span-${status}>
+            <ul class="task-list task-list-${status}"></ul>
+        </div>`
+    );
 }
 
-
 export default class TaskListComponent {
-  getTemplate() {
-    return createTaskListComponentTemplate();
-  }
-
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+    constructor({title, status}) {
+        this.title = title;
+        this.status = status;
+        this.element = null;
+        this.tasksContainer = null;
     }
 
+    getTemplate() {
+        return createTaskListComponentTemplate(this.title, this.status);
+    }
 
-    return this.element;
-  }
+    getElement() {
+        if (!this.element) {
+            this.element = createElement(this.getTemplate());
+            this.tasksContainer = this.element.querySelector(`.task-list-${this.status}`);
+        }
+        return this.element;
+    }
 
+    getTasksContainer() {
+        if (!this.tasksContainer) {
+            this.getElement();
+        }
+        return this.tasksContainer;
+    }
 
-  removeElement() {
-    this.element = null;
-  }
+    getButtonContainer() {
+        if (!this.element) {
+            this.getElement();
+        }
+        return this.element;
+    }
+
+    removeElement() {
+        this.element = null;
+        this.tasksContainer = null;
+    }
 }
