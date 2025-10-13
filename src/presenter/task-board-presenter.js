@@ -1,55 +1,62 @@
-import TaskListComponent from '../view/task-list-component.js';
 import BoardComponent from '../view/board-component.js';
-import {render} from '../framework/render.js';
+import TaskListComponent from '../view/task-list-component.js';
 import TaskComponent from '../view/task-component.js';
+import { render } from "../framework/render.js";
 import {Status, StatusLabel} from '../const.js';
-import ButtonDelComponent from '../view/button-del-component.js';
+import ButtonDelComponent from '../view/button-del-component.js'; 
+import PlugComponent from '../view/plug-component.js';
 
 export default class TaskBoardPresenter{
+    #boardComponent = new BoardComponent(); 
+    #tasksModel = null;
     #boardContainer = null;
-    #taskModel = null;
-    #boardComponent = new BoardComponent();
     #boardTasks = [];
-    
-    constructor ({boardContainer, taskModel}){
+
+    constructor({boardContainer, tasksModel}){
         this.#boardContainer = boardContainer;
-        this.#taskModel = taskModel;
+        this.#tasksModel = tasksModel; 
+    }
+
+    init(){
+        this.#boardTasks = [...this.#tasksModel.tasks];
+        this.#renderBoard();
+    } 
+
+    #renderTask(task, container){
+        const taskComponent = new TaskComponent({task: task});
+        render(taskComponent, container);
+    }
+
+    #renderClearButton(container){
+        render(new ButtonDelComponent(), container);
+    }
+
+    #renderPlugElement(container){
+        render(new PlugComponent(), container);
     }
     
-    init (){
-        this.#boardTasks = [...this.#taskModel.getTasks()];
+    #filterByStatus(tasks, status){
+        return tasks.filter(x => {
+            return x.status == status;
+        });
+    }
+
+    #renderBoard(){
         render(this.#boardComponent, this.#boardContainer);
 
-        const taskListComponentBacklog = new TaskListComponent({title: StatusLabel[Status.BACKLOG], status: Status.BACKLOG});
-        const taskListComponentProcess = new TaskListComponent({title: StatusLabel[Status.PROCESS], status: Status.PROCESS});
-        const taskListComponentDone = new TaskListComponent({title: StatusLabel[Status.DONE], status: Status.DONE});
-        const taskListComponentBin = new TaskListComponent({title: StatusLabel[Status.BIN], status: Status.BIN});
-
-        render(taskListComponentBacklog, this.#boardComponent.getElement());
-        render(taskListComponentProcess, this.#boardComponent.getElement());
-        render(taskListComponentDone, this.#boardComponent.getElement());
-        render(taskListComponentBin, this.#boardComponent.getElement());
-
-        const buttonDelComponent= new ButtonDelComponent();
-        render(buttonDelComponent, taskListComponentBin.getButtonContainer());
-
-        for(let i = 0; i < this.#boardTasks.length; i++){
-            if(this.#boardTasks[i].status === Status.BACKLOG){
-                const taskComponent = new TaskComponent({task: this.#boardTasks[i]});
-                render(taskComponent, taskListComponentBacklog.getTasksContainer());
+        Object.values(Status).forEach((status) => {
+            const taskListComponent = new TaskListComponent({status: status, label: StatusLabel[status]});
+            render(taskListComponent, this.#boardComponent.element);
+            const tasksForStatus = this.#filterByStatus(this.#boardTasks, status);
+            if(tasksForStatus.length == 0){
+                this.#renderPlugElement(taskListComponent.element);
             }
-            if(this.#boardTasks[i].status === Status.PROCESS){
-                const taskComponent = new TaskComponent({task: this.#boardTasks[i]});
-                render(taskComponent, taskListComponentProcess.getTasksContainer());
+            tasksForStatus.forEach((task) => {
+                this.#renderTask(task, taskListComponent.element);
+            })
+            if(status == "bin"){ 
+                this.#renderClearButton(taskListComponent.element); 
             }
-            if(this.#boardTasks[i].status === Status.DONE){
-                const taskComponent = new TaskComponent({task: this.#boardTasks[i]});
-                render(taskComponent, taskListComponentDone.getTasksContainer());
-            }
-            if(this.#boardTasks[i].status === Status.BIN){
-                const taskComponent = new TaskComponent({task: this.#boardTasks[i]});
-                render(taskComponent, taskListComponentBin.getTasksContainer());
-            }
-        }
+        })
     }
 }

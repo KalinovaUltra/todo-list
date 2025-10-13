@@ -57,6 +57,22 @@ body {
     min-height: 300px;
 }
 
+li {
+    background-color: #ffffff; 
+    min-height: 20px;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 7px;
+    border-left: 5px solid transparent;
+    line-height: 1.5;
+    list-style: none;
+}
+
+.plug{
+    background-color: #f5f5f5;
+    color: #666; 
+}
+
 .task-list {
     list-style-position: inside;
     list-style-type: none;

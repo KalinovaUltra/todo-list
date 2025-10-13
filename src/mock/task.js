@@ -27,6 +27,6 @@ export const task = [
     {
     id: "6",
     title: "Прочитать Войну и Мир",
-    status: "bin",
+    status: "done",
     },
 ]

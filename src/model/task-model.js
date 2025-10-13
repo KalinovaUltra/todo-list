@@ -1,9 +1,9 @@
 import { task } from "../mock/task.js";
 
 export default class TaskModel{
-    #boardtask = task;
+    #boardTasks = task; 
 
-    getTasks(){
-        return this.#boardtask;
+    get tasks(){ 
+        return this.#boardTasks;
     }
 }
