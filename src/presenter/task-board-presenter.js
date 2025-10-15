@@ -11,10 +11,15 @@ export default class TaskBoardPresenter{
     #tasksModel = null;
     #boardContainer = null;
     #boardTasks = [];
+    #clearButton = null;
 
-    constructor({boardContainer, tasksModel}){
+    constructor({boardContainer, tasksModel, clearButton}){
         this.#boardContainer = boardContainer;
         this.#tasksModel = tasksModel; 
+        this.#clearButton = clearButton;
+
+       
+        this.#tasksModel.addObserver(this.#handleModelChange.bind(this));
     }
 
     init(){
@@ -28,8 +33,13 @@ export default class TaskBoardPresenter{
     }
 
     #renderClearButton(container){
-        render(new ButtonDelComponent(), container);
-    }
+    const buttonComponent = new ButtonDelComponent({ 
+        onClick: () => this.#clearBin() 
+    });
+    render(buttonComponent, container);
+    
+    this.#buttonDisable;
+}
 
     #renderPlugElement(container){
         render(new PlugComponent(), container);
@@ -47,7 +57,7 @@ export default class TaskBoardPresenter{
         Object.values(Status).forEach((status) => {
             const taskListComponent = new TaskListComponent({status: status, label: StatusLabel[status]});
             render(taskListComponent, this.#boardComponent.element);
-            const tasksForStatus = this.#filterByStatus(this.#boardTasks, status);
+            const tasksForStatus = this.#filterByStatus(this.tasks, status); 
             if(tasksForStatus.length == 0){
                 this.#renderPlugElement(taskListComponent.element);
             }
@@ -58,5 +68,42 @@ export default class TaskBoardPresenter{
                 this.#renderClearButton(taskListComponent.element); 
             }
         })
+    }
+
+    createTask(){
+        const taskTitle = document.getElementById('add-task').value.trim();
+        if(!taskTitle){
+            return;
+        }
+        this.#tasksModel.addTask(taskTitle);
+        document.getElementById('add-task').value = '';
+    }
+
+    #clearBin(){
+        this.#tasksModel.clearBin();
+    }
+
+    #handleModelChange(){
+        this.#clearBoard();
+        this.#renderBoard();
+        this.#buttonDisable(); 
+    }
+
+    #clearBoard(){
+        this.#boardComponent.element.innerHTML = '';
+    }
+
+
+    #buttonDisable(){
+        const binTasks = this.#filterByStatus(this.tasks, 'bin');
+        const clearButton = document.querySelector('.button-del');
+        
+        if (clearButton) {
+            clearButton.disabled = binTasks.length === 0;
+        }
+    }
+
+    get tasks(){
+        return this.#tasksModel.tasks;
     }
 }

@@ -22,11 +22,11 @@ export const task = [
     {
     id: "5",
     title: "Отдохнуть",
-    status: "done",
+    status: "bin",
     },
     {
     id: "6",
     title: "Прочитать Войну и Мир",
-    status: "done",
+    status: "bin",
     },
 ]
