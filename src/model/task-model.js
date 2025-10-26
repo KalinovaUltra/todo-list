@@ -41,9 +41,11 @@ export default class TaskModel{
         this.#observers.forEach((observer) => observer());
     }
 
-    clearBin(){
-        this.#boardTasks = this.tasks.filter((x) => x.status !== 'bin');
+    updateTaskStatus(taskId, newStatus){
+    const task = this.#boardTasks.find(task => task.id === taskId);
+    if(task){
+        task.status = newStatus;
         this._notifyObservers();
-    }   
-
+    }
+    }
 }

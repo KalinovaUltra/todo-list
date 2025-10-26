@@ -38,7 +38,7 @@ export default class TaskBoardPresenter{
     });
     render(buttonComponent, container);
     
-    this.#buttonDisable;
+    this.#buttonDisable();
 }
 
     #renderPlugElement(container){
@@ -51,23 +51,28 @@ export default class TaskBoardPresenter{
         });
     }
 
+    #handleTaskDrop(taskId, newStatus, insertIndex = null){
+    this.#tasksModel.updateTaskStatus(taskId, newStatus, insertIndex);
+}
+
     #renderBoard(){
         render(this.#boardComponent, this.#boardContainer);
 
-        Object.values(Status).forEach((status) => {
-            const taskListComponent = new TaskListComponent({status: status, label: StatusLabel[status]});
-            render(taskListComponent, this.#boardComponent.element);
-            const tasksForStatus = this.#filterByStatus(this.tasks, status); 
-            if(tasksForStatus.length == 0){
-                this.#renderPlugElement(taskListComponent.element);
-            }
-            tasksForStatus.forEach((task) => {
-                this.#renderTask(task, taskListComponent.element);
-            })
-            if(status == "bin"){ 
-                this.#renderClearButton(taskListComponent.element); 
-            }
+    Object.values(Status).forEach((status) => {
+        const taskListComponent = new TaskListComponent({status: status, label: StatusLabel[status],
+            onTaskDrop: this.#handleTaskDrop.bind(this)});
+        render(taskListComponent, this.#boardComponent.element);
+        const tasksForStatus = this.#filterByStatus(this.tasks, status); 
+        if(tasksForStatus.length == 0){
+            this.#renderPlugElement(taskListComponent.element);
+        }
+        tasksForStatus.forEach((task) => {
+            this.#renderTask(task, taskListComponent.element);
         })
+        if(status == "bin"){ 
+            this.#renderClearButton(taskListComponent.element); 
+        }
+    })
     }
 
     createTask(){

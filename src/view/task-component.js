@@ -6,15 +6,34 @@ function createTaskComponentTemplate(task) {
         `<li class="task-list-${status}">${title}</li>`
     );
 }
-export default class TaskComponent extends AbstractComponent {
-    #task = null;
 
-    constructor({task}) {
-        super();
-        this.#task = task;
+export default class TaskComponent extends AbstractComponent{
+
+
+    constructor({task}){
+      super()
+        this.task = task;
+        this.#afterCreateElement();
     }
 
-    get template() {
-        return createTaskComponentTemplate(this.#task);
+    get template(){
+      return createTaskComponentTemplate(this.task);
+    }
+
+    #afterCreateElement(){
+      this.#makeTaskDraggable();
+    }
+
+    #makeTaskDraggable(){
+      this.element.setAttribute('draggable', true);
+        
+      this.element.addEventListener('dragstart', (event) => {
+        event.dataTransfer.setData('text/plain', this.task.id);
+        this.element.classList.add('dragging');
+      })
+
+      this.element.addEventListener('dragend', (event) => {
+        this.element.classList.remove('dragging');
+      });
     }
 }
