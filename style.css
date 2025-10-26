@@ -182,3 +182,9 @@ li.task-list-bin {
     height: 30px;
     border-color: #d7d7d7;
 }
+
+.board_no-tasks {
+    text-align: center;
+    font-size: 18px;
+    color: #5c8bf0;
+}

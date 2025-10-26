@@ -44,7 +44,7 @@ export default class TaskListComponent extends AbstractComponent{
             const taskId = event.dataTransfer.getData('text/plain');
             const taskList = container.querySelector('ul');
             const tasks = Array.from(taskList.querySelectorAll('li'));
-            const droppedElement = document.querySelector(`[draggable="true"]:last-child`);
+            const droppedElement = taskList.querySelector('.dragging');
             let insertIndex = tasks.length;
             
             if (droppedElement) {

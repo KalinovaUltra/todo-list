@@ -2,9 +2,10 @@ import BoardComponent from '../view/board-component.js';
 import TaskListComponent from '../view/task-list-component.js';
 import TaskComponent from '../view/task-component.js';
 import { render } from "../framework/render.js";
-import {Status, StatusLabel} from '../const.js';
+import {Status, StatusLabel, UserAction, UpdateType} from '../const.js';
 import ButtonDelComponent from '../view/button-del-component.js'; 
 import PlugComponent from '../view/plug-component.js';
+import LoadingViewComponent from '../view/loading-view-component.js';
 
 export default class TaskBoardPresenter{
     #boardComponent = new BoardComponent(); 
@@ -12,20 +13,24 @@ export default class TaskBoardPresenter{
     #boardContainer = null;
     #boardTasks = [];
     #clearButton = null;
+    #loadingComponent = new LoadingViewComponent();
 
     constructor({boardContainer, tasksModel, clearButton}){
         this.#boardContainer = boardContainer;
         this.#tasksModel = tasksModel; 
         this.#clearButton = clearButton;
+        
 
        
-        this.#tasksModel.addObserver(this.#handleModelChange.bind(this));
+        this.#tasksModel.addObserver(this.#handleModelEvent.bind(this));
     }
 
-    init(){
-        this.#boardTasks = [...this.#tasksModel.tasks];
+    async init() {
+        render(this.#loadingComponent, this.#boardContainer);
+        await this.#tasksModel.init();
+        this.#clearBoard();
         this.#renderBoard();
-    } 
+    }
 
     #renderTask(task, container){
         const taskComponent = new TaskComponent({task: task});
@@ -34,7 +39,7 @@ export default class TaskBoardPresenter{
 
     #renderClearButton(container){
     const buttonComponent = new ButtonDelComponent({ 
-        onClick: () => this.#clearBin() 
+        onClick: () => this.#handleClearBinClick() 
     });
     render(buttonComponent, container);
     
@@ -51,8 +56,12 @@ export default class TaskBoardPresenter{
         });
     }
 
-    #handleTaskDrop(taskId, newStatus, insertIndex = null){
-    this.#tasksModel.updateTaskStatus(taskId, newStatus, insertIndex);
+async #handleTaskDrop(taskId, newStatus, insertIndex = null){
+    try{
+        await this.#tasksModel.updateTaskStatus(taskId, newStatus, insertIndex);
+    } catch(err){
+        console.error('Ошибка при обновлении статуса задачи на сервере: ', err)
+    }
 }
 
     #renderBoard(){
@@ -75,27 +84,36 @@ export default class TaskBoardPresenter{
     })
     }
 
-    createTask(){
+    async createTask(){
         const taskTitle = document.getElementById('add-task').value.trim();
         if(!taskTitle){
             return;
         }
-        this.#tasksModel.addTask(taskTitle);
-        document.getElementById('add-task').value = '';
+        try{
+            await this.#tasksModel.addTask(taskTitle);
+            document.getElementById('add-task').value = "";
+        } catch(err){
+            console.error('Ошибка при создании задачи:', err)
+        }
     }
 
     #clearBin(){
-        this.#tasksModel.clearBin();
-    }
+    this.#tasksModel.clearBinModel();
+}
 
-    #handleModelChange(){
-        this.#clearBoard();
-        this.#renderBoard();
-        this.#buttonDisable(); 
+async #handleClearBinClick(){
+        try{
+            await this.#tasksModel.clearBinModel();
+        } catch(err){
+            console.error('Ошибка при очистке корзины', err);
+        }
     }
 
     #clearBoard(){
         this.#boardComponent.element.innerHTML = '';
+        if (this.#loadingComponent.element && this.#loadingComponent.element.parentNode) {
+            this.#loadingComponent.element.remove();
+        }
     }
 
 
@@ -111,4 +129,16 @@ export default class TaskBoardPresenter{
     get tasks(){
         return this.#tasksModel.tasks;
     }
+#handleModelEvent(event, payload){
+    switch(event){
+        case UserAction.ADD_TASK:
+        case UserAction.UPDATE_TASK:
+        case UserAction.DELETE_TASK:
+        case UpdateType.INIT:
+            this.#clearBoard();
+            this.#renderBoard();
+            this.#buttonDisable();
+            break;
+    }
+}
 }
